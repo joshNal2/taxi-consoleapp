@@ -9,6 +9,7 @@
 using namespace std;
 
 string email, password, em, pw, status;
+void taxiAppHeader();
 void logIn();
 void isCustomer();
 void isEmployee();
@@ -23,7 +24,7 @@ void displayLostItemReports();
 void logOut();
 void displayDriverContactInfo();
 void displayCustomerContactInfo();
-// end admin related functions
+
 
 // complaints
 struct ComplaintsRecord {
@@ -58,9 +59,42 @@ public:
 
 };
 
+// lost items
 
+struct LostItemsReport {
+public:
+    LostItemsReport(
+        int lostItemReportNo,
+        string name,
+        string date,
+        string lostItemDesc,
+        string status
+    ) {
+        LostItemReportNo = lostItemReportNo;
+        Name = name;
+        Date = date;
+        LostItemDesc = lostItemDesc;
+        Status = status;
+    }
+
+    void lostItemDisplay() {
+        cout << "\nLOST ITEM REPORT NO:  " << LostItemReportNo << "\n";
+        cout << "Name:          " << Name << endl;
+        cout << "Date of ride: " << Date << endl;
+        cout << "Complaint:    " << LostItemDesc << endl;
+        cout << "Status:       " << Status << "\n\n";
+    }
+
+    int LostItemReportNo;
+    string Name, Date, LostItemDesc, Status;
+
+};
+
+void resolveComplaint(ComplaintsRecord c);
 
 int main(){
+
+    taxiAppHeader();
 
     int choice;
 
@@ -101,6 +135,12 @@ void logIn(){
     
 }
 
+void taxiAppHeader() {
+    cout << "***************************************\n";
+    cout << "                TAXI APP               \n";
+    cout << "***************************************\n\n";
+}
+
 void isCustomer() {
     cout << "Succesfully logged in! Customer" << endl;
     system("PAUSE");
@@ -110,9 +150,9 @@ void isAdmin() {
 
     system("cls"); // clearing so login password is cleared from screen
 
-    cout << "***************************************\n";
-    cout << "             WELCOME ADMIN!            \n";
-    cout << "***************************************\n";
+    taxiAppHeader();
+
+    cout << "Welcome Admin!\n\n";
 
     adminMenu();
 }
@@ -143,7 +183,11 @@ void adminMenu() {
     int choice;
 
     do {
-        cout << "\nADMIN MENU \n\n1: View complaints \n2: View lost item reports \n3: Log Out \n\nYour choice: ";
+        cout << "***************************************\n";
+        cout << "               ADMIN MENU              \n";
+        cout << "***************************************\n";
+            
+        cout <<"\n1: View complaints \n2: View lost item reports \n3: Log Out \n\nYour choice : ";
         cin >> choice;
         cout << "\n\n";
 
@@ -171,7 +215,7 @@ void displayComplaints() {
     cout << "               COMPLAINTS              \n";
     cout << "***************************************\n\n";
 
-    int complaintNo = 0;
+    int complaintNo;
     string name, role, date, complaintDesc, status, tempString;
 
 
@@ -211,11 +255,12 @@ void displayComplaints() {
     do {
         cin >> complaintNumInput;
  
+            
             for (ComplaintsRecord c : complaints) { // loop through complaints
 
                 if (complaintNumInput == c.ComplaintNo) {
                     
-                    cout << "\nYou have chosen complaint no. " << c.ComplaintNo << "\n\n";
+                    cout << "\nYou have chosen Complaint no. " << c.ComplaintNo << "\n\n";
                     // display complaint info
                     c.complaintDisplay();
                     
@@ -262,9 +307,12 @@ void displayComplaints() {
 
                 }
                 else { 
-                    cout << "Complaint no. " << complaintNumInput << " does not exist. Please choose a valid Complaint no. : ";
                         complaintDoesNotExist = true;
                 }
+            }
+
+            if (complaintDoesNotExist == true) {
+                cout << "\nComplaint no. " << complaintNumInput << " does not exist. Please choose a valid Complaint no. : ";
             }
 
     } while (complaintDoesNotExist == true);
@@ -273,12 +321,9 @@ void displayComplaints() {
 
 }
 
-
-
 void updateComplaints(vector<ComplaintsRecord>& complaints) {
 
 }
-
 
 void displayDriverContactInfo() {
 
@@ -303,6 +348,12 @@ void displayCustomerContactInfo() {
     cout << "Email: " << email << "\n\n";
 };
 
+void listLostItems(vector<LostItemsReport>& lostItems) {
+
+    for (auto lostItem : lostItems) {
+        lostItem.lostItemDisplay();
+    }
+}
 
 void displayLostItemReports() {
 
@@ -310,13 +361,121 @@ void displayLostItemReports() {
     cout << "               LOST ITEMS              \n";
     cout << "***************************************\n\n";
 
+    int lostItemReportNo;
+    string name, date, lostitemDesc, status, tempString;
+
+
+    // PARSING CSV tutorial link https://www.youtube.com/watch?v=NFvxA-57LLA
+
+    ifstream inputFile;
+    inputFile.open("lostitems.csv");
+    string line = "";
+
+    vector<LostItemsReport> lostItems;
+    while (getline(inputFile, line)) {
+
+        stringstream inputString(line);
+
+        getline(inputString, tempString, ',');
+        lostItemReportNo = atoi(tempString.c_str());
+        getline(inputString, name, ',');
+        getline(inputString, date, ',');
+        getline(inputString, lostitemDesc, ',');
+        getline(inputString, status, ',');
+
+        LostItemsReport lostItem(lostItemReportNo, name, date, lostitemDesc, status);
+        lostItems.push_back(lostItem);
+        line = "";
+    }
+
+    // display lost Items
+    listLostItems(lostItems);
+
+    // ask admin to choose a report from the list
+    int lostItemNumInput;
+    bool reportDoesNotExist = false;
+
+    cout << "\nPlease choose the Lost Item Report no. from the above that you'd like to action: ";
+
+    do {
+        cin >> lostItemNumInput;
+
+        for (LostItemsReport l : lostItems) { // loop through lost Items
+
+            if (lostItemNumInput == l.LostItemReportNo) {
+
+                cout << "\nYou have chosen complaint no. " << l.LostItemReportNo << "\n\n";
+                // display info
+                l.lostItemDisplay();
+
+                // ask what the'yd like to do with the complaint (1) contact driver / customer (2) change status to resolved  
+                bool choiceInvalid = false;
+                int choice;
+
+                do {
+                    cout << "\nWhat would you like to do about this lost item report? \n\n1: Contact the driver \n2: Mark as Resolved \n3: Go back to Lost Items list \n4: Go back to Admin Menu \n\nYour choice: ";
+                    cin >> choice;
+                    cout << "\n\n";
+
+                    switch (choice) {
+                    case 1:
+                        displayDriverContactInfo();
+                        break;
+                    case 2:
+                        l.Status = "Resolved";
+                        //    updateLostItems(vector<LostItemsReport>&lostItems);
+                        break;
+                    case 3:
+                        displayLostItemReports(); break;
+                    case 4:
+                        adminMenu(); break;
+                    default:
+                        cout << "Invalid choice\n\n";
+                        choiceInvalid = true;
+                    }
+                } while (choiceInvalid == true);
+
+                cout << "\nWhat would you like to do next? \n\n1: Go back to Lost Items list \n2: Go back to Admin Menu \n\nYour choice: ";
+                cin >> choice;
+                cout << "\n\n";
+
+                switch (choice) {
+                case 1:
+                    displayLostItemReports();;
+                case 2:
+                    adminMenu(); break;
+                default:
+                    cout << "Invalid choice\n\n";
+                    choiceInvalid = true;
+                }
+
+            }
+            else {
+                reportDoesNotExist = true;
+            }
+        }
+
+        if (reportDoesNotExist == true) {
+        cout << "\nLost Item Report no. " << lostItemNumInput << " does not exist. Please choose a valid Lost Item Report no. : ";
+        }
+
+    } while (reportDoesNotExist == true);
+
+    system("pause");
+
+}
+
+void updateLostItems(vector<LostItemsReport>& lostItems) {
 
 }
 
 void logOut() {
 
     system("cls");
-    cout << "\nYou've logged out. Bye!\n\n";
+    taxiAppHeader();
+    cout << "You've logged out. Bye!\n\n";
+    system("pause");
+    system("cls");
     main();
 
 }
