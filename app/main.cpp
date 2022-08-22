@@ -5,6 +5,7 @@
 #include <vector>
 #include <stdlib.h>
 #include <cstdlib>
+#include <stdio.h>
 
 using namespace std;
 
@@ -246,6 +247,8 @@ void displayComplaints() {
     // display complaints
     listComplaints(complaints);
 
+    inputFile.close();
+
     // ask admin to choose a complaint from the list
     int complaintNumInput;
     bool complaintDoesNotExist = false;
@@ -260,16 +263,16 @@ void displayComplaints() {
 
                 if (complaintNumInput == c.ComplaintNo) {
                     
-                    cout << "\nYou have chosen Complaint no. " << c.ComplaintNo << "\n\n";
+                    cout << "\nYou have chosen Complaint no. " << c.ComplaintNo <<". ";
                     // display complaint info
-                    c.complaintDisplay();
+                    // c.complaintDisplay();
                     
                     // ask what the'yd like to do with the complaint (1) contact driver / customer (2) change status to resolved  
                     bool choiceInvalid = false;
                     int choice;
 
                     do {
-                        cout << "\nWhat would you like to do about this complaint? \n\n1: Contact the driver and customer \n2: Mark as Resolved \n3: Go back to Complaints list \n4: Go back to Admin Menu \n\nYour choice: ";
+                        cout << "What would you like to do about this complaint? \n\n1: Contact the driver and customer \n2: Mark as Resolved \n3: Go back to Complaints list \n4: Go back to Admin Menu \n\nYour choice: ";
                         cin >> choice;
                         cout << "\n\n";
    
@@ -278,7 +281,9 @@ void displayComplaints() {
                                 displayDriverContactInfo();
                                 displayCustomerContactInfo(); break;
                         case 2: 
-                                c.Status = "Resolved";
+                              //  c.Status = "Resolved";
+                              //  update_record();
+                               resolveComplaint(c);
                             //    udateComplaints(vector<ComplaintsRecord>&complaints);
                                 break;
                         case 3: 
@@ -291,7 +296,7 @@ void displayComplaints() {
                         }
                     } while (choiceInvalid == true);
                     
-                    cout << "\nWhat would you like to do next? \n\n1: Go back to complaints list \n2: Go back to Admin Menu \n\nYour choice: ";
+                    cout << "What would you like to do next? \n\n1: Go back to complaints list \n2: Go back to Admin Menu \n\nYour choice: ";
                     cin >> choice;
                     cout << "\n\n";
 
@@ -316,7 +321,8 @@ void displayComplaints() {
             }
 
     } while (complaintDoesNotExist == true);
-    
+
+
     system("pause");
 
 }
@@ -390,6 +396,8 @@ void displayLostItemReports() {
 
     // display lost Items
     listLostItems(lostItems);
+
+    inputFile.close();
 
     // ask admin to choose a report from the list
     int lostItemNumInput;
@@ -479,5 +487,137 @@ void logOut() {
     main();
 
 }
+
+
+
+void resolveComplaint(ComplaintsRecord complaint) {
+
+    int complaintNo = complaint.ComplaintNo;
+    fstream inputFile, outputFile;
+    inputFile.open("complaints.csv", ios::in);
+    outputFile.open("complaintsNew.csv", ios::out);
+
+    vector<string> row;
+    string cell;
+    string line;
+
+    int count = 0; //debugging remove later
+
+    /*
+    while (!inputFile.eof()) {
+
+        count++;
+        row.clear();
+        getline(inputFile, line);
+        stringstream inputFile(line);
+
+        //Put each item into row vector
+        while (getline(inputFile, cell, ',')) {
+            row.push_back(cell);
+        }
+
+        cout << stoi(row[0]) << " " << complaint.ComplaintNo << " ";
+        
+        //Check if the input ComplaintNo matches the row's complaint ID
+        if (stoi(row[0]) == complaint.ComplaintNo) {
+            row[5] = " Resolved"; //Mark as resolved if it is
+            cout << "Complaint no. " << row[0] << " is marked as resolved.\n";
+
+            //write everything back to output
+            int rowSize = row.size();
+
+            //if (!inputFile.eof()) {
+
+            for (int i = 0; i < rowSize - 1; i++) {
+                outputFile << row[i] << ",";
+                //cout << row[i] << ",";
+            }
+
+            outputFile << row[rowSize - 1] << "\n";
+            cout << "inputFile.str() is " << inputFile.str() << " !\n";
+            //cout << row[rowSize - 1] << "\n";
+
+
+       // }
+
+            cout << "Writing line for " << row[1] << "\n"; //debugging
+
+
+        }
+
+    }
+    */
+
+    
+
+
+    // Traverse the file 
+    // https://www.geeksforgeeks.org/csv-file-management-using-c/
+    while (!inputFile.eof()) {
+
+        row.clear();
+
+        getline(inputFile, line);
+        stringstream inputFile(line);
+
+        while (getline(inputFile, cell, ',')) {
+            row.push_back(cell);
+        }
+
+        complaintNo = stoi(row[0]);
+        int rowSize = row.size();
+
+       // cout << "test" << complaintNo << stoi(row[0]) << complaint.ComplaintNo << endl;
+
+        if (stoi(row[0]) == complaint.ComplaintNo) {
+
+         //   count = 1;
+            count++;
+            row[5] = " Resolved"; //Mark as resolved if it is
+            cout << "Complaint no. " << row[0] << " is marked as resolved.\n";
+
+        //    if (!inputFile.eof()) {
+             //   for (int i = 0; i < rowSize - 1; i++) {
+
+                    // write the updated data
+                    // into a new file 
+               //     outputFile << row[i] << ",";
+                //}
+
+                outputFile << row[rowSize - 1] << "\n";
+          //      outputFile << "test" << "\n";
+         //   }
+        }
+  //      else {
+    //        if (!inputFile.eof()) {
+                for (int i = 0; i < rowSize - 1; i++) {
+
+                    // writing other existing records
+                    // into the new file
+                    outputFile << row[i] << ",";
+                //    outputFile << "test" << "\n";
+                }
+
+                // the last column data ends with a '\n'
+                outputFile << row[rowSize - 1] << "\n";
+        //    }
+        }
+     //   if (inputFile.eof())
+       //     break;
+    
+
+
+
+    inputFile.close(); 
+    outputFile.close();
+
+
+    remove("complaints.csv"); 
+    rename("complaintsNew.csv", "complaints.csv");
+
+
+
+}
+
 
 ////////////////////////// END ADMIN FUNCTIONS ////////////////////////// 
