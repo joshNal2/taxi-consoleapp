@@ -27,6 +27,7 @@ void displayDriverContactInfo();
 void displayCustomerContactInfo();
 
 
+
 // complaints
 struct ComplaintsRecord {
 public:
@@ -47,8 +48,8 @@ public:
     }
 
     void complaintDisplay() {
-        cout << "\nCOMPLAINT NO:  " << ComplaintNo << "\n";
-        cout << "Name:          " << Name << endl;
+        cout << "\nCOMPLAINT NO: " << ComplaintNo << "\n";
+        cout << "Name:         " << Name << endl;
         cout << "Role:         " << Role << endl;
         cout << "Date of ride: " << Date << endl;
         cout << "Complaint:    " << ComplaintDesc << endl;
@@ -59,6 +60,8 @@ public:
     string Name, Role, Date, ComplaintDesc, Status;
 
 };
+
+void resolveComplaint(ComplaintsRecord c);
 
 // lost items
 
@@ -83,7 +86,7 @@ public:
         cout << "Name:          " << Name << endl;
         cout << "Date of ride: " << Date << endl;
         cout << "Complaint:    " << LostItemDesc << endl;
-        cout << "Status:       " << Status << "\n\n";
+        cout << "Status:        " << Status << "\n\n";
     }
 
     int LostItemReportNo;
@@ -91,11 +94,15 @@ public:
 
 };
 
-void resolveComplaint(ComplaintsRecord c);
+void resolveLostItemsReport(LostItemsReport l);
+
+
 
 int main(){
 
     taxiAppHeader();
+
+    cout << "Welcome to Taxi! Booking System where \nyou can securely book a taxi whenever \nand wherever you need it. We pride \nourselves in using only electric \nvehicles, enabling us to provide you \nwith cheaper fares while at the same \ntime being nice to planet! Customer \nsafety is very important to us, all our \ndrivers go through a thorough security \ncheck so rest assured you are in safe \nhands! \n\nPrefer calling? Phone 0800 777 \nto talk to one of our friendly customer \nservice!\n\n";
 
     int choice;
 
@@ -138,7 +145,7 @@ void logIn(){
 
 void taxiAppHeader() {
     cout << "***************************************\n";
-    cout << "                TAXI APP               \n";
+    cout << "          TAXI! BOOKING SYSTEM         \n";
     cout << "***************************************\n\n";
 }
 
@@ -274,17 +281,14 @@ void displayComplaints() {
                     do {
                         cout << "What would you like to do about this complaint? \n\n1: Contact the driver and customer \n2: Mark as Resolved \n3: Go back to Complaints list \n4: Go back to Admin Menu \n\nYour choice: ";
                         cin >> choice;
-                        cout << "\n\n";
+                        cout << "\n";
    
                         switch (choice) {
                         case 1: 
                                 displayDriverContactInfo();
                                 displayCustomerContactInfo(); break;
                         case 2: 
-                              //  c.Status = "Resolved";
-                              //  update_record();
                                resolveComplaint(c);
-                            //    udateComplaints(vector<ComplaintsRecord>&complaints);
                                 break;
                         case 3: 
                                 displayComplaints(); break;
@@ -327,7 +331,47 @@ void displayComplaints() {
 
 }
 
-void updateComplaints(vector<ComplaintsRecord>& complaints) {
+void resolveComplaint(ComplaintsRecord complaint) {
+    fstream iF, oF;
+    iF.open("complaints.csv", ios::in);
+    oF.open("complaintsNew.csv", ios::out);
+
+    vector<string> row;
+    string cell, line;
+
+    int count = 0;
+
+    while (!iF.eof()) {
+        count++;
+        row.clear();
+        getline(iF, line);
+        stringstream iF(line);
+
+        while (getline(iF, cell, ',')) {
+            row.push_back(cell);
+        }
+        //Only prepend newline if count is greater than 1
+        int complaintNo = stoi(row[0]); //This will error if we have a blank line. I.e., we cannot have an endl in the beginning or the end of the file.
+        int rowSize = row.size();
+
+        if (stoi(row[0]) == complaint.ComplaintNo) {
+            row[5] = "Resolved";
+            cout << "Complaint No. " << complaint.ComplaintNo << " has been marked as resolved.\n\n";
+        }
+        if (count > 1) {
+            oF << endl;         //Add an endl if we are not in the first row of the output file (oF)
+        }
+        //Write everything to oF output file to overwrite complaints.txt
+        for (int i = 0; i < rowSize - 1; i++) {
+            oF << row[i] + ',';     //Append a comma between each cell for the csv format.
+        }
+        oF << row[rowSize - 1];     //Exclude having a comma at the last item of the line.
+    }
+
+    iF.close();
+    oF.close();
+    remove("complaints.csv");
+    rename("complaintsNew.csv", "complaints.csv");
 
 }
 
@@ -412,26 +456,26 @@ void displayLostItemReports() {
 
             if (lostItemNumInput == l.LostItemReportNo) {
 
-                cout << "\nYou have chosen complaint no. " << l.LostItemReportNo << "\n\n";
+                cout << "\nYou have chosen Lost Item Report no. " << l.LostItemReportNo << "\n\n";
                 // display info
-                l.lostItemDisplay();
+                // l.lostItemDisplay();
 
-                // ask what the'yd like to do with the complaint (1) contact driver / customer (2) change status to resolved  
+                // ask what the'yd like to do with the lost item report  
                 bool choiceInvalid = false;
                 int choice;
 
                 do {
-                    cout << "\nWhat would you like to do about this lost item report? \n\n1: Contact the driver \n2: Mark as Resolved \n3: Go back to Lost Items list \n4: Go back to Admin Menu \n\nYour choice: ";
+                    cout << "What would you like to do about this lost item report? \n\n1: Contact the driver and customer \n2: Mark as Resolved \n3: Go back to Lost Items list \n4: Go back to Admin Menu \n\nYour choice: ";
                     cin >> choice;
-                    cout << "\n\n";
+                    cout << "\n";
 
                     switch (choice) {
                     case 1:
                         displayDriverContactInfo();
+                        displayCustomerContactInfo();
                         break;
                     case 2:
-                        l.Status = "Resolved";
-                        //    updateLostItems(vector<LostItemsReport>&lostItems);
+                        resolveLostItemsReport(l);
                         break;
                     case 3:
                         displayLostItemReports(); break;
@@ -443,7 +487,7 @@ void displayLostItemReports() {
                     }
                 } while (choiceInvalid == true);
 
-                cout << "\nWhat would you like to do next? \n\n1: Go back to Lost Items list \n2: Go back to Admin Menu \n\nYour choice: ";
+                cout << "What would you like to do next? \n\n1: Go back to Lost Items list \n2: Go back to Admin Menu \n\nYour choice: ";
                 cin >> choice;
                 cout << "\n\n";
 
@@ -473,8 +517,47 @@ void displayLostItemReports() {
 
 }
 
-void updateLostItems(vector<LostItemsReport>& lostItems) {
+void resolveLostItemsReport(LostItemsReport lostitem) {
+    fstream iF, oF;
+    iF.open("lostitems.csv", ios::in);
+    oF.open("lostitemsNew.csv", ios::out);
 
+    vector<string> row;
+    string cell, line;
+
+    int count = 0;
+
+    while (!iF.eof()) {
+        count++;
+        row.clear();
+        getline(iF, line);
+        stringstream iF(line);
+
+        while (getline(iF, cell, ',')) {
+            row.push_back(cell);
+        }
+        //Only prepend newline if count is greater than 1
+        int lostItemReportNo = stoi(row[0]); //This will error if we have a blank line. I.e., we cannot have an endl in the beginning or the end of the file.
+        int rowSize = row.size();
+
+        if (stoi(row[0]) == lostitem.LostItemReportNo) {
+            row[4] = "Resolved";
+            cout << "Lost Item Report No. " << lostitem.LostItemReportNo << " has been marked as resolved.\n\n";
+        }
+        if (count > 1) {
+            oF << endl;         //Add an endl if we are not in the first row of the output file (oF)
+        }
+        //Write everything to oF output file to overwrite lostitems.csv
+        for (int i = 0; i < rowSize - 1; i++) {
+            oF << row[i] + ',';     //Append a comma between each cell for the csv format.
+        }
+        oF << row[rowSize - 1];     //Exclude having a comma at the last item of the line.
+    }
+
+    iF.close();
+    oF.close();
+    remove("lostitems.csv");
+    rename("lostitemsNew.csv", "lostitems.csv");
 }
 
 void logOut() {
@@ -489,135 +572,6 @@ void logOut() {
 }
 
 
-
-void resolveComplaint(ComplaintsRecord complaint) {
-
-    int complaintNo = complaint.ComplaintNo;
-    fstream inputFile, outputFile;
-    inputFile.open("complaints.csv", ios::in);
-    outputFile.open("complaintsNew.csv", ios::out);
-
-    vector<string> row;
-    string cell;
-    string line;
-
-    int count = 0; //debugging remove later
-
-    /*
-    while (!inputFile.eof()) {
-
-        count++;
-        row.clear();
-        getline(inputFile, line);
-        stringstream inputFile(line);
-
-        //Put each item into row vector
-        while (getline(inputFile, cell, ',')) {
-            row.push_back(cell);
-        }
-
-        cout << stoi(row[0]) << " " << complaint.ComplaintNo << " ";
-        
-        //Check if the input ComplaintNo matches the row's complaint ID
-        if (stoi(row[0]) == complaint.ComplaintNo) {
-            row[5] = " Resolved"; //Mark as resolved if it is
-            cout << "Complaint no. " << row[0] << " is marked as resolved.\n";
-
-            //write everything back to output
-            int rowSize = row.size();
-
-            //if (!inputFile.eof()) {
-
-            for (int i = 0; i < rowSize - 1; i++) {
-                outputFile << row[i] << ",";
-                //cout << row[i] << ",";
-            }
-
-            outputFile << row[rowSize - 1] << "\n";
-            cout << "inputFile.str() is " << inputFile.str() << " !\n";
-            //cout << row[rowSize - 1] << "\n";
-
-
-       // }
-
-            cout << "Writing line for " << row[1] << "\n"; //debugging
-
-
-        }
-
-    }
-    */
-
-    
-
-
-    // Traverse the file 
-    // https://www.geeksforgeeks.org/csv-file-management-using-c/
-    while (!inputFile.eof()) {
-
-        row.clear();
-
-        getline(inputFile, line);
-        stringstream inputFile(line);
-
-        while (getline(inputFile, cell, ',')) {
-            row.push_back(cell);
-        }
-
-        complaintNo = stoi(row[0]);
-        int rowSize = row.size();
-
-       // cout << "test" << complaintNo << stoi(row[0]) << complaint.ComplaintNo << endl;
-
-        if (stoi(row[0]) == complaint.ComplaintNo) {
-
-         //   count = 1;
-            count++;
-            row[5] = " Resolved"; //Mark as resolved if it is
-            cout << "Complaint no. " << row[0] << " is marked as resolved.\n";
-
-        //    if (!inputFile.eof()) {
-             //   for (int i = 0; i < rowSize - 1; i++) {
-
-                    // write the updated data
-                    // into a new file 
-               //     outputFile << row[i] << ",";
-                //}
-
-                outputFile << row[rowSize - 1] << "\n";
-          //      outputFile << "test" << "\n";
-         //   }
-        }
-  //      else {
-    //        if (!inputFile.eof()) {
-                for (int i = 0; i < rowSize - 1; i++) {
-
-                    // writing other existing records
-                    // into the new file
-                    outputFile << row[i] << ",";
-                //    outputFile << "test" << "\n";
-                }
-
-                // the last column data ends with a '\n'
-                outputFile << row[rowSize - 1] << "\n";
-        //    }
-        }
-     //   if (inputFile.eof())
-       //     break;
-    
-
-
-
-    inputFile.close(); 
-    outputFile.close();
-
-
-    remove("complaints.csv"); 
-    rename("complaintsNew.csv", "complaints.csv");
-
-
-
-}
 
 
 ////////////////////////// END ADMIN FUNCTIONS ////////////////////////// 
