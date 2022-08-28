@@ -1,0 +1,8 @@
+testcustomer@gmail.com
+password
+customer
+Test Customer
+123 Lowe St, Auckland
+021123456
+1234567890
+Active

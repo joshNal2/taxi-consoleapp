@@ -1,0 +1,8 @@
+james@taxi.co.nz
+password
+employee
+James Driver
+123 Sale St, Auckland
+021987654
+1234567890
+Active

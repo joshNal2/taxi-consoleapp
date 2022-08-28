@@ -1,7 +1,0 @@
-admin@gmail.com
-adminpassword
-admin
-John Doe
-John Doe St, Auckland
-021
-123

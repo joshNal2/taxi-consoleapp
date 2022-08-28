@@ -15,14 +15,15 @@ void logIn();
 void isCustomer();
 void isEmployee();
 void addCustomer();
-
+void logOut();
 
 // admin related functions
 void isAdmin();
 void adminMenu();
 void displayComplaints();
 void displayLostItemReports();
-void logOut();
+void suspendAccount(string email);
+void unsuspendAccount();
 
 // complaints
 struct ComplaintsRecord {
@@ -64,7 +65,6 @@ public:
         cout << "Status:       " << Status << "\n\n";
     }
 
-    
     void driverDetailsDisplay() {
         cout << "Driver Name:       " << DriverName << endl;
         cout << "Driver Email:      " << DriverEmail << endl;
@@ -86,7 +86,6 @@ public:
 void resolveComplaint(ComplaintsRecord c);
 
 // lost items
-
 struct LostItemsReport {
 public:
     LostItemsReport(
@@ -143,9 +142,9 @@ public:
 void resolveLostItemsReport(LostItemsReport l);
 
 
-
-
 int main(){
+
+    system("cls"); 
 
     taxiAppHeader();
 
@@ -164,41 +163,65 @@ int main(){
     }
 }
 
-void logIn(){
-    cout << "Enter email: "; cin >> email;
-    cout << "Enter password: "; cin >> password;
-    cout << "\n\n";
-
-    ifstream read("users/" + email + ".txt");
-    getline(read, em);
-    getline(read, pw);
-    getline(read, status);
-
-    if (em == email && pw == password && status == "customer"){
-        isCustomer();
-    }
-    else if (em == email && pw == password && status == "admin"){
-        isAdmin();
-    }
-    else if (em == email && pw == password && status == "employee"){
-        isEmployee();
-    }
-    else {
-        cout << "Failed! User doesn't exist." << endl;
-        main();
-    }
-    
-}
-
 void taxiAppHeader() {
     cout << "***************************************\n";
     cout << "          TAXI! BOOKING SYSTEM         \n";
     cout << "***************************************\n\n";
 }
 
+void logIn(){
+
+    cout << "***************************************\n";
+    cout << "                 LOG IN               \n";
+    cout << "***************************************\n\n";
+
+    string customerName, address, phoneNo, creditCardNo, accountStatus;
+
+
+    cout << "Enter email: "; cin >> email;
+    cout << "Enter password: "; cin >> password;
+    cout << "\n";
+
+    ifstream read("users/" + email + ".txt");
+    getline(read, em);
+    getline(read, pw);
+    getline(read, status);
+    getline(read, customerName);
+    getline(read, address);
+    getline(read, phoneNo);
+    getline(read, creditCardNo);
+    getline(read, accountStatus);
+  
+    if (accountStatus == "Suspended" && pw == password) {
+        cout << "Your account has been suspended. Please contact customer service at 0800 777 to resolve this issue.\n\n";
+        system("pause");
+        main();
+    }
+
+    else {
+
+        if (em == email && pw == password && status == "customer") {
+            isCustomer();
+        }
+        else if (em == email && pw == password && status == "admin"){
+            isAdmin();
+        }
+        else if (em == email && pw == password && status == "employee"){
+            isEmployee();
+        }
+        else {
+            cout << "Failed! Username & password does not match or user doesn't exist.\n\n" << endl;
+            system("pause");
+            main();
+        }
+    }
+
+    
+}
+
 void isCustomer() {
     cout << "Succesfully logged in! Customer" << endl;
-    system("PAUSE");
+    system("pause");
 }
 
 void isAdmin() {
@@ -218,6 +241,11 @@ void isEmployee() {
 }
 
 void addCustomer() {
+
+    cout << "***************************************\n";
+    cout << "                REGISTER               \n";
+    cout << "***************************************\n\n";
+
     string customerName, email, password, address, phoneNo, creditCardNo;
         cout << "Enter your name: "; getline(cin >> ws, customerName);
         cout << "Enter your email: "; cin >> email;
@@ -228,11 +256,9 @@ void addCustomer() {
 
         ofstream file;
         file.open("users/" + email + ".txt");
-        file << email << endl << password << endl << "customer" << endl << customerName << endl << address << endl << phoneNo << endl << creditCardNo;
+        file << email << endl << password << endl << "customer" << endl << customerName << endl << address << endl << phoneNo << endl << creditCardNo << endl << "Active";
         file.close();
 }
-
-
 
 ////////////////////////// ADMIN FUNCTIONS ////////////////////////// 
 void adminMenu() {
@@ -244,14 +270,15 @@ void adminMenu() {
         cout << "               ADMIN MENU              \n";
         cout << "***************************************\n";
             
-        cout <<"\n1: View complaints \n2: View lost item reports \n3: Log Out \n\nYour choice : ";
+        cout <<"\n1: View complaints \n2: View lost item reports \n3: Unsuspend account \n4: Log Out \n\nYour choice : ";
         cin >> choice;
         cout << "\n\n";
 
         switch (choice) {
         case 1: displayComplaints(); break;
         case 2: displayLostItemReports(); break;
-        case 3: logOut(); break;
+        case 3: unsuspendAccount(); break;
+        case 4: logOut(); break;
         default:
             cout << "Invalid choice\n\n";
             choiceInvalid = true;
@@ -334,7 +361,7 @@ void displayComplaints() {
                     int choice;
 
                     do {
-                        cout << "What would you like to do about this complaint? \n\n1: Contact the driver and customer \n2: Mark as Resolved \n3: Go back to Complaints list \n4: Go back to Admin Menu \n\nYour choice: ";
+                        cout << "What would you like to do about this complaint? \n\n1: Contact the driver and customer \n2: Suspend the driver \n3: Suspend the customer  \n4: Mark as Resolved \n5: Go back to Complaints list \n6: Go back to Admin Menu \n\nYour choice: ";
                         cin >> choice;
                         cout << "\n";
    
@@ -343,12 +370,18 @@ void displayComplaints() {
                                 c.driverDetailsDisplay();
                                 c.customerDetailsDisplay(); 
                                 break;
-                        case 2: 
+                        case 2:
+                                suspendAccount(c.DriverEmail);
+                                break;
+                        case 3:
+                                suspendAccount(c.CustomerEmail);
+                                break;
+                        case 4: 
                                resolveComplaint(c);
                                 break;
-                        case 3: 
+                        case 5: 
                                 displayComplaints(); break;
-                        case 4:
+                        case 6:
                                 adminMenu(); break;
                         default:
                                 cout << "Invalid choice\n\n";
@@ -362,7 +395,7 @@ void displayComplaints() {
 
                     switch (choice) {
                     case 1:
-                        displayComplaints();
+                        displayComplaints(); break;
                     case 2:
                         adminMenu(); break;
                     default:
@@ -599,7 +632,121 @@ void resolveLostItemsReport(LostItemsReport lostitem) {
     rename("lostitemsNew.csv", "lostitems.csv");
 }
 
+void suspendAccount(string email) {
 
+    // source: https://stackoverflow.com/questions/9505085/replace-a-line-in-text-file
+
+        string strReplace = "Active";
+        string strNew = "Suspended";
+        ifstream filein("users/" + email + ".txt"); //File to read from
+        ofstream fileout("users/" + email + "New.txt"); //Temporary file
+        if (!filein || !fileout)
+        {
+            cout << "\nAccount does not exist!\n" << endl;
+        }
+
+        string strTemp;
+        //bool found = false;
+        while (filein >> strTemp)
+        {
+            if (strTemp == strReplace) {
+                strTemp = strNew;
+                
+                //found = true;
+            }
+            strTemp += "\n";
+            fileout << strTemp;
+            //if(found) break;
+        }
+
+        filein.close();
+        fileout.close();
+
+        string oldFile = "users/"+email + ".txt";
+        string newFile = "users/"+email + "New.txt";
+
+        //have to use .c_str() here because the remove and rename functions appear to only accept char arrays.
+        //However, the way we concatenate strings above means they are just strings.
+        remove(oldFile.c_str());
+        rename(newFile.c_str(), oldFile.c_str());
+
+        cout << email << " has been suspended.\n\n";
+
+        int choice;
+        bool choiceInvalid = false;
+
+        do {
+
+        cout << "What would you like to do next? \n\n1: Go back to complaints list \n2: Go back to Admin Menu \n\nYour choice: ";
+        cin >> choice;
+        cout << "\n\n";
+
+        switch (choice) {
+            case 1:
+                displayComplaints();
+            case 2:
+                adminMenu(); break;
+            default:
+                cout << "Invalid choice\n\n";
+                choiceInvalid = true;
+            }
+        } while (choiceInvalid = true);
+
+
+}
+
+void unsuspendAccount() {
+
+    cout << "***************************************\n";
+    cout << "           UNSUSPEND ACCOUNT           \n";
+    cout << "***************************************\n\n";
+
+    string email;
+
+    cout << "Enter email to reactivate: ";
+    cin >> email;
+
+    // source: https://stackoverflow.com/questions/9505085/replace-a-line-in-text-file
+
+    string strReplace = "Suspended";
+    string strNew = "Active";
+    ifstream filein("users/" + email + ".txt"); //File to read from
+    ofstream fileout("users/" + email + "New.txt"); //Temporary file
+    if (!filein || !fileout)
+    {
+        cout << "\nAccount does not exist!\n" << endl;
+    }
+
+    string strTemp;
+    //bool found = false;
+    while (filein >> strTemp)
+    {
+        if (strTemp == strReplace) {
+            strTemp = strNew;
+            //found = true;
+            
+        }
+        strTemp += "\n";
+        fileout << strTemp;
+        //if(found) break;
+    }
+
+    filein.close();
+    fileout.close();
+
+    string oldFile = "users/" + email + ".txt";
+    string newFile = "users/" + email + "New.txt";
+
+    //have to use .c_str() here because the remove and rename functions appear to only accept char arrays.
+    //However, the way we concatenate strings above means they are just strings.
+    remove(oldFile.c_str());
+    rename(newFile.c_str(), oldFile.c_str());
+
+    cout << "\n" << email << " has been reactivated.\n\n";
+
+    adminMenu();
+
+}
 
 ////////////////////////// END ADMIN FUNCTIONS ////////////////////////// 
 
