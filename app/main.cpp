@@ -23,10 +23,6 @@ void adminMenu();
 void displayComplaints();
 void displayLostItemReports();
 void logOut();
-void displayDriverContactInfo();
-void displayCustomerContactInfo();
-
-
 
 // complaints
 struct ComplaintsRecord {
@@ -37,7 +33,13 @@ public:
         string role,
         string date,
         string complaintDesc,
-        string status
+        string status,
+        string drivername,
+        string driveremail,
+        string driverphone,
+        string customername,
+        string customeremail,
+        string customerphone
     ) {
         ComplaintNo = complaintNo;
         Name = name;
@@ -45,6 +47,12 @@ public:
         Date = date;
         ComplaintDesc = complaintDesc;
         Status = status;
+        DriverName = drivername;
+        DriverEmail = driveremail;
+        DriverPhone = driverphone;
+        CustomerName = customername;
+        CustomerEmail = customeremail;
+        CustomerPhone = customerphone;
     }
 
     void complaintDisplay() {
@@ -56,8 +64,22 @@ public:
         cout << "Status:       " << Status << "\n\n";
     }
 
+    
+    void driverDetailsDisplay() {
+        cout << "Driver Name:       " << DriverName << endl;
+        cout << "Driver Email:      " << DriverEmail << endl;
+        cout << "Drive Phone No:    " << DriverPhone << "\n\n";
+    }
+
+    void customerDetailsDisplay() {
+        cout << "Customer Name:     " << CustomerName << endl;
+        cout << "Customer Email:    " << CustomerEmail << endl;
+        cout << "Customer Phone No: " << CustomerPhone << "\n\n";
+    }
+    
+    
     int ComplaintNo;
-    string Name, Role, Date, ComplaintDesc, Status;
+    string Name, Role, Date, ComplaintDesc, Status, DriverName, DriverEmail, DriverPhone, CustomerName, CustomerEmail, CustomerPhone;
 
 };
 
@@ -72,13 +94,25 @@ public:
         string name,
         string date,
         string lostItemDesc,
-        string status
+        string status,
+        string drivername,
+        string driveremail,
+        string driverphone,
+        string customername,
+        string customeremail,
+        string customerphone
     ) {
         LostItemReportNo = lostItemReportNo;
         Name = name;
         Date = date;
         LostItemDesc = lostItemDesc;
         Status = status;
+        DriverName = drivername;
+        DriverEmail = driveremail;
+        DriverPhone = driverphone;
+        CustomerName = customername;
+        CustomerEmail = customeremail;
+        CustomerPhone = customerphone;
     }
 
     void lostItemDisplay() {
@@ -89,12 +123,25 @@ public:
         cout << "Status:        " << Status << "\n\n";
     }
 
+    void driverDetailsDisplay() {
+        cout << "Driver Name:       " << DriverName << endl;
+        cout << "Driver Email:      " << DriverEmail << endl;
+        cout << "Drive Phone No:    " << DriverPhone << "\n\n";
+    }
+
+    void customerDetailsDisplay() {
+        cout << "Customer Name:     " << CustomerName << endl;
+        cout << "Customer Email:    " << CustomerEmail << endl;
+        cout << "Customer Phone No: " << CustomerPhone << "\n\n";
+    }
+
     int LostItemReportNo;
-    string Name, Date, LostItemDesc, Status;
+    string Name, Date, LostItemDesc, Status, DriverName, DriverEmail, DriverPhone, CustomerName, CustomerEmail, CustomerPhone;
 
 };
 
 void resolveLostItemsReport(LostItemsReport l);
+
 
 
 
@@ -185,6 +232,8 @@ void addCustomer() {
         file.close();
 }
 
+
+
 ////////////////////////// ADMIN FUNCTIONS ////////////////////////// 
 void adminMenu() {
     bool choiceInvalid = false;
@@ -224,7 +273,7 @@ void displayComplaints() {
     cout << "***************************************\n\n";
 
     int complaintNo;
-    string name, role, date, complaintDesc, status, tempString;
+    string name, role, date, complaintDesc, status, drivername, driveremail, driverphone, customername, customeremail, customerphone, tempString;
 
 
     // PARSING CSV tutorial link https://www.youtube.com/watch?v=NFvxA-57LLA
@@ -245,8 +294,14 @@ void displayComplaints() {
         getline(inputString, date, ',');
         getline(inputString, complaintDesc, ',');
         getline(inputString, status, ',');
+        getline(inputString, drivername, ',');
+        getline(inputString, driveremail, ',');
+        getline(inputString, driverphone, ',');
+        getline(inputString, customername, ',');
+        getline(inputString, customeremail, ',');
+        getline(inputString, customerphone, ',');
 
-        ComplaintsRecord complaint(complaintNo, name, role, date, complaintDesc, status);
+        ComplaintsRecord complaint(complaintNo, name, role, date, complaintDesc, status, drivername, driveremail, driverphone, customername, customeremail, customerphone);
         complaints.push_back(complaint);
         line = "";
     }
@@ -285,8 +340,9 @@ void displayComplaints() {
    
                         switch (choice) {
                         case 1: 
-                                displayDriverContactInfo();
-                                displayCustomerContactInfo(); break;
+                                c.driverDetailsDisplay();
+                                c.customerDetailsDisplay(); 
+                                break;
                         case 2: 
                                resolveComplaint(c);
                                 break;
@@ -375,29 +431,6 @@ void resolveComplaint(ComplaintsRecord complaint) {
 
 }
 
-void displayDriverContactInfo() {
-
-    // change later
-    string name, email;
-    int phone = 0211234567; // change later
-    cout << "Here are the driver's contact details\n";
-    cout << "Name: " << name << endl;
-    cout << "Phone no: " << phone << endl;
-    cout << "Email: " << email << "\n\n";
-
-}
-
-void displayCustomerContactInfo() {
-
-    // change later
-    string name, email;
-    int phone = 0221234567; // change later
-    cout << "Here are the customer's contact details\n";
-    cout << "Name: " << name << endl;
-    cout << "Phone no: " << phone << endl;
-    cout << "Email: " << email << "\n\n";
-};
-
 void listLostItems(vector<LostItemsReport>& lostItems) {
 
     for (auto lostItem : lostItems) {
@@ -412,7 +445,7 @@ void displayLostItemReports() {
     cout << "***************************************\n\n";
 
     int lostItemReportNo;
-    string name, date, lostitemDesc, status, tempString;
+    string name, date, lostitemDesc, status, drivername, driveremail, driverphone, customername, customeremail, customerphone, tempString;
 
 
     // PARSING CSV tutorial link https://www.youtube.com/watch?v=NFvxA-57LLA
@@ -432,8 +465,14 @@ void displayLostItemReports() {
         getline(inputString, date, ',');
         getline(inputString, lostitemDesc, ',');
         getline(inputString, status, ',');
+        getline(inputString, drivername, ',');
+        getline(inputString, driveremail, ',');
+        getline(inputString, driverphone, ',');
+        getline(inputString, customername, ',');
+        getline(inputString, customeremail, ',');
+        getline(inputString, customerphone, ',');
 
-        LostItemsReport lostItem(lostItemReportNo, name, date, lostitemDesc, status);
+        LostItemsReport lostItem(lostItemReportNo, name, date, lostitemDesc, status, drivername, driveremail, driverphone, customername, customeremail, customerphone);
         lostItems.push_back(lostItem);
         line = "";
     }
@@ -471,8 +510,8 @@ void displayLostItemReports() {
 
                     switch (choice) {
                     case 1:
-                        displayDriverContactInfo();
-                        displayCustomerContactInfo();
+                        l.driverDetailsDisplay();
+                        l.customerDetailsDisplay();
                         break;
                     case 2:
                         resolveLostItemsReport(l);
@@ -560,6 +599,12 @@ void resolveLostItemsReport(LostItemsReport lostitem) {
     rename("lostitemsNew.csv", "lostitems.csv");
 }
 
+
+
+////////////////////////// END ADMIN FUNCTIONS ////////////////////////// 
+
+////////////////////////// LOG OUT ////////////////////////// 
+
 void logOut() {
 
     system("cls");
@@ -571,7 +616,4 @@ void logOut() {
 
 }
 
-
-
-
-////////////////////////// END ADMIN FUNCTIONS ////////////////////////// 
+////////////////////////// END LOG OUT ////////////////////////// 
