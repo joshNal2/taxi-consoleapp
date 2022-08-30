@@ -1,8 +1,11 @@
 petra@gmail.com
 password
 customer
-t
-t
-t
-t
 Active
+Petra
+123
+Sale
+St,
+Auckland
+021123456
+1234567890

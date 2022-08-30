@@ -16,12 +16,15 @@ void isCustomer();
 void isEmployee();
 void addCustomer();
 void logOut();
+int exit();
 
 // admin related functions
 void isAdmin();
 void adminMenu();
 void displayComplaints();
+void complaintsSubmenu();
 void displayLostItemReports();
+void lostItemsReportSubmenu();
 void suspendAccount(string email);
 void unsuspendAccount();
 
@@ -150,17 +153,30 @@ int main(){
 
     cout << "Welcome to Taxi! Booking System where \nyou can securely book a taxi whenever \nand wherever you need it. We pride \nourselves in using only electric \nvehicles, enabling us to provide you \nwith cheaper fares while at the same \ntime being nice to planet! Customer \nsafety is very important to us, all our \ndrivers go through a thorough security \ncheck so rest assured you are in safe \nhands! \n\nPrefer calling? Phone 0800 777 \nto talk to one of our friendly customer \nservice!\n\n";
 
+    bool choiceInvalid = false;
     int choice;
 
-    cout << "1: Register\n2: Login\n\nYour choice: "; cin >> choice;
-    cout << "\n";
-    if (choice == 1){
-        addCustomer();
-        main();
-    }
-    else if (choice == 2){
-        logIn();
-    }
+    do {
+        cout << "1: Register\n2: Login\n\nYour choice: ";
+        cin >> choice;
+        cout << "\n\n";
+
+        switch (choice) {
+        case 1:
+            addCustomer();
+            main(); 
+            break;
+        case 2:
+            logIn();
+            break;
+        default:
+            cout << "Invalid choice\n\n";
+            choiceInvalid = true;
+        }
+    } while (choiceInvalid == true);
+
+
+
 }
 
 void taxiAppHeader() {
@@ -175,7 +191,7 @@ void logIn(){
     cout << "                 LOG IN               \n";
     cout << "***************************************\n\n";
 
-    string customerName, address, phoneNo, creditCardNo, accountStatus;
+    string accountStatus;
 
 
     cout << "Enter email: "; cin >> email;
@@ -186,13 +202,9 @@ void logIn(){
     getline(read, em);
     getline(read, pw);
     getline(read, status);
-    getline(read, customerName);
-    getline(read, address);
-    getline(read, phoneNo);
-    getline(read, creditCardNo);
     getline(read, accountStatus);
   
-    if (accountStatus == "Suspended" && pw == password) {
+    if (em == email && pw == password && accountStatus == "Suspended") {
         cout << "Your account has been suspended. Please contact customer service at 0800 777 to resolve this issue.\n\n";
         system("pause");
         main();
@@ -203,10 +215,10 @@ void logIn(){
         if (em == email && pw == password && status == "customer") {
             isCustomer();
         }
-        else if (em == email && pw == password && status == "admin"){
+        else if (em == email && pw == password && status == "admin") {
             isAdmin();
         }
-        else if (em == email && pw == password && status == "employee"){
+        else if (em == email && pw == password && status == "employee") {
             isEmployee();
         }
         else {
@@ -216,12 +228,22 @@ void logIn(){
         }
     }
 
+    read.close();
     
 }
 
 void isCustomer() {
-    cout << "Succesfully logged in! Customer" << endl;
+
+    system("cls"); // clearing so login password is cleared from screen
+
+    taxiAppHeader();
+
+    cout << "Welcome Customer!\n\n";
+
+    cout << "Lucy to create Customer dashboard.\n\n";
+
     system("pause");
+    main();
 }
 
 void isAdmin() {
@@ -236,8 +258,17 @@ void isAdmin() {
 }
 
 void isEmployee() {
-    cout << "Succesfully logged in! Employee" << endl;
-    system("PAUSE");
+
+    system("cls"); // clearing so login password is cleared from screen
+
+    taxiAppHeader();
+
+    cout << "Welcome Employee!\n\n";
+
+    cout << "Josh to create Employee dashboard.\n\n";
+
+    system("pause");
+    main();
 }
 
 void addCustomer() {
@@ -256,8 +287,12 @@ void addCustomer() {
 
         ofstream file;
         file.open("users/" + email + ".txt");
-        file << email << endl << password << endl << "customer" << endl << customerName << endl << address << endl << phoneNo << endl << creditCardNo << endl << "Active";
+        file << email << endl << password << endl << "customer" << endl << "Active" << endl << customerName << endl << address << endl << phoneNo << endl << creditCardNo;
         file.close();
+
+        cout << "\nRegistration successful!\n\n";
+        system("pause");
+        main();
 }
 
 ////////////////////////// ADMIN FUNCTIONS ////////////////////////// 
@@ -369,16 +404,20 @@ void displayComplaints() {
                         case 1: 
                                 c.driverDetailsDisplay();
                                 c.customerDetailsDisplay(); 
+                                complaintsSubmenu();
                                 break;
                         case 2:
                                 suspendAccount(c.DriverEmail);
+                                complaintsSubmenu();
                                 break;
                         case 3:
                                 suspendAccount(c.CustomerEmail);
+                                complaintsSubmenu();
                                 break;
                         case 4: 
                                resolveComplaint(c);
-                                break;
+                               complaintsSubmenu();
+                               break;
                         case 5: 
                                 displayComplaints(); break;
                         case 6:
@@ -388,20 +427,6 @@ void displayComplaints() {
                                 choiceInvalid = true;
                         }
                     } while (choiceInvalid == true);
-                    
-                    cout << "What would you like to do next? \n\n1: Go back to complaints list \n2: Go back to Admin Menu \n\nYour choice: ";
-                    cin >> choice;
-                    cout << "\n\n";
-
-                    switch (choice) {
-                    case 1:
-                        displayComplaints(); break;
-                    case 2:
-                        adminMenu(); break;
-                    default:
-                        cout << "Invalid choice\n\n";
-                        choiceInvalid = true;
-                    }
 
                 }
                 else { 
@@ -416,8 +441,28 @@ void displayComplaints() {
     } while (complaintDoesNotExist == true);
 
 
-    system("pause");
+}
 
+void complaintsSubmenu() {
+
+    bool choiceInvalid = false;
+    int choice;
+
+    do {
+        cout << "What would you like to do next? \n\n1: Go back to complaints list \n2: Go back to Admin Menu \n\nYour choice: ";
+        cin >> choice;
+        cout << "\n\n";
+
+        switch (choice) {
+        case 1:
+            displayComplaints(); break;
+        case 2:
+            adminMenu(); break;
+        default:
+            cout << "Invalid choice\n\n";
+            choiceInvalid = true;
+        }
+    } while (choiceInvalid == true);
 }
 
 void resolveComplaint(ComplaintsRecord complaint) {
@@ -460,7 +505,8 @@ void resolveComplaint(ComplaintsRecord complaint) {
     iF.close();
     oF.close();
     remove("complaints.csv");
-    rename("complaintsNew.csv", "complaints.csv");
+    if (rename("complaintsNew.csv", "complaints.csv") != 0) {
+    }
 
 }
 
@@ -545,9 +591,11 @@ void displayLostItemReports() {
                     case 1:
                         l.driverDetailsDisplay();
                         l.customerDetailsDisplay();
+                        lostItemsReportSubmenu();
                         break;
                     case 2:
                         resolveLostItemsReport(l);
+                        lostItemsReportSubmenu();
                         break;
                     case 3:
                         displayLostItemReports(); break;
@@ -559,19 +607,6 @@ void displayLostItemReports() {
                     }
                 } while (choiceInvalid == true);
 
-                cout << "What would you like to do next? \n\n1: Go back to Lost Items list \n2: Go back to Admin Menu \n\nYour choice: ";
-                cin >> choice;
-                cout << "\n\n";
-
-                switch (choice) {
-                case 1:
-                    displayLostItemReports();;
-                case 2:
-                    adminMenu(); break;
-                default:
-                    cout << "Invalid choice\n\n";
-                    choiceInvalid = true;
-                }
 
             }
             else {
@@ -585,8 +620,30 @@ void displayLostItemReports() {
 
     } while (reportDoesNotExist == true);
 
-    system("pause");
 
+
+}
+
+void lostItemsReportSubmenu() {
+
+    bool choiceInvalid = false;
+    int choice;
+
+    do {
+        cout << "What would you like to do next? \n\n1: Go back to Lost Items list \n2: Go back to Admin Menu \n\nYour choice: ";
+        cin >> choice;
+        cout << "\n\n";
+
+        switch (choice) {
+        case 1:
+            displayLostItemReports(); break;
+        case 2:
+            adminMenu(); break;
+        default:
+            cout << "Invalid choice\n\n";
+            choiceInvalid = true;
+        }
+    } while (choiceInvalid == true);
 }
 
 void resolveLostItemsReport(LostItemsReport lostitem) {
@@ -629,7 +686,8 @@ void resolveLostItemsReport(LostItemsReport lostitem) {
     iF.close();
     oF.close();
     remove("lostitems.csv");
-    rename("lostitemsNew.csv", "lostitems.csv");
+    if (rename("lostitemsNew.csv", "lostitems.csv") != 0) {
+    }
 }
 
 void suspendAccount(string email) {
@@ -668,29 +726,12 @@ void suspendAccount(string email) {
         //have to use .c_str() here because the remove and rename functions appear to only accept char arrays.
         //However, the way we concatenate strings above means they are just strings.
         remove(oldFile.c_str());
-        rename(newFile.c_str(), oldFile.c_str());
+        if (rename(newFile.c_str(), oldFile.c_str()) != 0) {
+        }
 
         cout << email << " has been suspended.\n\n";
 
-        int choice;
-        bool choiceInvalid = false;
 
-        do {
-
-        cout << "What would you like to do next? \n\n1: Go back to complaints list \n2: Go back to Admin Menu \n\nYour choice: ";
-        cin >> choice;
-        cout << "\n\n";
-
-        switch (choice) {
-            case 1:
-                displayComplaints();
-            case 2:
-                adminMenu(); break;
-            default:
-                cout << "Invalid choice\n\n";
-                choiceInvalid = true;
-            }
-        } while (choiceInvalid = true);
 
 
 }
@@ -724,7 +765,7 @@ void unsuspendAccount() {
         if (strTemp == strReplace) {
             strTemp = strNew;
             //found = true;
-            
+
         }
         strTemp += "\n";
         fileout << strTemp;
@@ -740,11 +781,35 @@ void unsuspendAccount() {
     //have to use .c_str() here because the remove and rename functions appear to only accept char arrays.
     //However, the way we concatenate strings above means they are just strings.
     remove(oldFile.c_str());
-    rename(newFile.c_str(), oldFile.c_str());
+    if (rename(newFile.c_str(), oldFile.c_str()) != 0) {
+    }
+   
 
     cout << "\n" << email << " has been reactivated.\n\n";
 
-    adminMenu();
+
+    bool choiceInvalid = false;
+    int choice;
+
+    do {
+        cout << "What would you like to do next? \n\n1: Unsuspend another account \n2: Go back to Admin Menu \n\nYour choice: ";
+        cin >> choice;
+        cout << "\n\n";
+
+        switch (choice) {
+        case 1:
+            unsuspendAccount(); break;
+        case 2:
+            adminMenu(); break;
+        default:
+        cout << "Invalid choice\n\n";
+        choiceInvalid = true;
+        }
+    } while (choiceInvalid == true);
+
+ 
+
+    
 
 }
 
@@ -758,9 +823,13 @@ void logOut() {
     taxiAppHeader();
     cout << "You've logged out. Bye!\n\n";
     system("pause");
-    system("cls");
     main();
 
+
+
 }
+
+
+
 
 ////////////////////////// END LOG OUT ////////////////////////// 

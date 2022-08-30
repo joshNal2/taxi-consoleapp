@@ -1,0 +1,11 @@
+peter@taxi.co.nz
+password
+employee
+Active
+Peter
+123
+Sale
+St,
+Auckland
+021123456
+1234567890

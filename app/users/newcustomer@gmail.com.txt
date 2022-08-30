@@ -1,0 +1,8 @@
+newcustomer@gmail.com
+password
+customer
+Active
+New Customer Test
+123 Sale St, Auckland
+021123456
+09876543210

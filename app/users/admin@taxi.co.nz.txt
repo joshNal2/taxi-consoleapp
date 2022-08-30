@@ -1,8 +1,8 @@
 admin@taxi.co.nz
 password
 admin
+Active
 admin
 123 Sale St, Auckland
 021123456
 1234567890
-Active
