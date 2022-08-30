@@ -1,0 +1,11 @@
+james@taxi.co.nz
+password
+employee
+Active
+James
+123
+Sale
+St,
+Auckland
+021123456
+1234567890
