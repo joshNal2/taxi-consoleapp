@@ -119,14 +119,14 @@ void addCustomer() {
   file.close();
 }
 
-//CUSTOMER FUNCTIONS
+//CUSTOMER FUNCTIONS - Email: a Password: a
 
 void isCustomer() {
   system("cls");
   cout << "Succesfully logged in! Customer" << endl;
 }
 
-//ADMIN FUNCTIONS
+//ADMIN FUNCTIONS - Email: a Password: a
 
 void isAdmin() {
   system("cls");
@@ -134,7 +134,7 @@ void isAdmin() {
 
 }
 
-//EMPLOYEE FUNCTIONS
+//EMPLOYEE FUNCTIONS - Email: e Password: e
 
 void isEmployee() {
   system("cls");
